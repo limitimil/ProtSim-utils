@@ -1,12 +1,14 @@
+import re
 import PPIReader
 import FastaGraber
 import csv
 import os
 import glob
 import sys
-class scoreCollector(PPIReader.PPIReader):
+class scoreCollector(FastaGraber.FastaGraber):
     def __init__(self, fromPath='./out'):
         self.fromPath=fromPath
+        super(scoreCollector, self).__init__()
     def makeTable(self, donefile='./done.csv'):
         def getTopScore(fn):
             a=open(fn).readline().split()
@@ -43,9 +45,46 @@ class scoreCollector(PPIReader.PPIReader):
                     sys.stderr.write('skip %s' % str(f))
                     sys.stderr.write('\n')
         return
+    def makeDonefile(self, outfile=None):
+        if not outfile:
+            outfile = sys.stdout
+        fn = glob.glob('%s/*predictions' % self.fromPath)
+        for f in fn:
+            f = os.path.basename(f)
+            ppi = re.split('___', f)[:2]
+            ppi[0] =re.sub('_\d','', ppi[0])
+            ppi[1] =re.sub('_\d','', ppi[1])
+            outfile.write(','.join(ppi) + '\n')
+        return
+    def makeInteraction(self, donefile='./done.csv', outfile=None):
+        if not outfile:
+            outfile = sys.stdout
+        with open(donefile) as csvfile:
+            result=csv.reader(csvfile, delimiter=',')
+            result = list(result)
+        interaction = {}
+        for r in result:
+            try:
+                interaction[self.U2G(r[0])] = interaction.get(self.U2G(r[0]), [])+\
+                [self.U2G(r[1])]
+            except Exception as e:
+                print str(e)
+                print 'pass no mapping interaction'
+        for k,v in interaction.items():
+            outfile.write(','.join([k] + v))
+            outfile.write('\n')
+        if outfile!= sys.stdout:
+            outfile.close()
+        return
+
+        
 if __name__ == '__main__':
     sc = scoreCollector(
         fromPath='/home/limin/limin/InterPred/out1110',
     )
-    sc.makeTable()
+#    sc.makeTable()
+#    ff = open('./done.csv', 'w')
+#    sc.makeDonefile(outfile=ff)
+#    ff.close()
+    sc.makeInteraction(donefile='tmp.1126')
         

@@ -1,7 +1,7 @@
 import os
 import sys
 import csv
-class FastaGraber:
+class FastaGraber(object):
     repo='./flattened'
     mapping='./uniprot_mapping.csv'
     def __init__(self, repo='./flattened', mapping='./uniprot_mapping.csv'):
