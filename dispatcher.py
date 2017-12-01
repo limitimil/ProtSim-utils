@@ -5,7 +5,7 @@ from subprocess import Popen, PIPE
 from os import chdir, getcwd, environ
 import datetime
 class dispatcher(PPIReader.PPIReader):
-    interpred_use_python = "echo -e '\033[0;31mthis is the modeler9.15 specific python2.7\033[0m'; /home/limin/bin/modeller9.15/bin/modpy.sh python2.7"
+    interpred_use_python = "/home/limin/bin/modeller9.15/bin/modpy.sh python2.7"
     interpred_executable = 'InterPred.py'
     context='./'
     def setFastaGraber(self,repo='./flattened',
@@ -77,7 +77,7 @@ class dispatcher(PPIReader.PPIReader):
                         self.errlog('error for %s, %s' % (mp,p))
                         self.errlog(err)
                     if output:
-                        self.errlog('log for %s, %s' % (mp,p))
+                        self.log('log for %s, %s' % (mp,p))
                         self.log(output)
                 except Exception as e:
                     print str(e)
