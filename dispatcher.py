@@ -104,14 +104,14 @@ class dispatcher(PPIReader.PPIReader):
             #restore the context
             chdir(self.context)
         print 'done!'
-    def singletest(self):
+    def singletest(self, a='FGFR1', b='PIK3R1'):
         self.setFastaGraber()
         #in test session we just try PPI for FGFR3
         self.context=getcwd()
         my_env = environ.copy()
         #select only one case to simulate
-        fas1 = self.FG.grabPathByGene('FGFR1')
-        fas2 = self.FG.grabPathByGene('PIK3R1')
+        fas1 = self.FG.grabPathByGene(a)
+        fas2 = self.FG.grabPathByGene(b)
         #change to interpred context
         chdir('/home/limin/limin/InterPred/interpred/')
         call(' '.join( self.arrangeCall(
@@ -126,4 +126,5 @@ if __name__ == '__main__':
     dp = dispatcher(open('./interactions.csv'))
 #    sklist=open('./done.csv').read().split('\n')
 #    sklist=map(lambda x: x.split(','), sklist)
-    dp.run()
+#    dp.run()
+    dp.singletest(a='IGF1R',b='CAMP')
