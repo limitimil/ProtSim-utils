@@ -1,3 +1,5 @@
+import os
+import signal
 import PPIReader
 import FastaGraber
 from subprocess import call
@@ -79,6 +81,11 @@ class dispatcher(PPIReader.PPIReader):
                     if output:
                         self.log('log for %s, %s' % (mp,p))
                         self.log(output)
+                except KeyboardInterrupt as kie:
+                    print str(kie)
+                    print 'user stop program when running %s, %s' %(mp, p)
+                    self.errlog('user stop program when running %s, %s' %(mp, p))
+                    os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
                 except Exception as e:
                     print str(e)
                     print 'skip modeling %s v.s. %s' % (mp, p)
@@ -126,5 +133,4 @@ if __name__ == '__main__':
     dp = dispatcher(open('./interactions.csv'))
 #    sklist=open('./done.csv').read().split('\n')
 #    sklist=map(lambda x: x.split(','), sklist)
-#    dp.run()
-    dp.singletest(a='IGF1R',b='CAMP')
+    dp.singletest('ERBB2','ABL1')
