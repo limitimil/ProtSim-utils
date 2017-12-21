@@ -48,7 +48,7 @@ class scoreCollector(FastaGraber.FastaGraber):
     def makeDonefile(self, outfile=None):
         if not outfile:
             outfile = sys.stdout
-        fn = glob.glob('%s/*predictions' % self.fromPath)
+        fn = glob.glob('%s/*rosetta.sh' % self.fromPath)
         for f in fn:
             f = os.path.basename(f)
             ppi = re.split('___', f)[:2]
@@ -79,12 +79,17 @@ class scoreCollector(FastaGraber.FastaGraber):
 
         
 if __name__ == '__main__':
-    sc = scoreCollector(
-        fromPath='/home/limin/limin/InterPred/out1110',
-    )
-#    sc.makeTable()
+    if len(sys.argv) > 1:
+        sc = scoreCollector(
+            fromPath=sys.argv[1],
+        )
+    else:
+        sc = scoreCollector(
+            fromPath='/home/limin/limin/InterPred/interpred/output_files',
+        )
 #    ff = open('./done.csv', 'w')
 #    sc.makeDonefile(outfile=ff)
+    sc.makeDonefile()
 #    ff.close()
-    sc.makeInteraction(donefile='tmp.1126')
-        
+#    sc.makeInteraction(donefile='tmp.1126')
+       
