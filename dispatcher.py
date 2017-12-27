@@ -10,11 +10,14 @@ class dispatcher(PPIReader.PPIReader):
     interpred_use_python = "/home/limin/bin/modeller9.15/bin/modpy.sh python2.7"
     interpred_executable = 'InterPred.py'
     context='./'
+    cpu=None
     def setFastaGraber(self,repo='./flattened',
     mapping='./uniprot_mapping.csv'):
         self.FG = FastaGraber.FastaGraber(repo=repo,mapping=mapping)
         return
     def arrangeCall(self,fas1,fas2,cpu=32):
+        if self.cpu:
+            cpu =self.cpu
         return [self.interpred_use_python, 
             self.interpred_executable,
             '-fasta',
@@ -37,10 +40,9 @@ class dispatcher(PPIReader.PPIReader):
         def done(p1,p2):
             p1 = p1.split('/')[2].split('.')[0]
             p2 = p2.split('/')[2].split('.')[0]
-            print 'check done %s, %s'% (p1,p2)
             for i in skipList:
                 if i[0] == p1 and i[1] == p2:
-                    print 'done %s, %s', (p1,p2)
+                    print 'done %s, %s'% (p1,p2)
                     raise Exception('modeling for %s and %s has done' %(p1,p2))
             return None 
         self.setFastaGraber()
@@ -75,11 +77,12 @@ class dispatcher(PPIReader.PPIReader):
                     )
                     output,err = proc.communicate()
                     #restore the context
+                    chdir(self.context)
                     if err:
-                        self.errlog('error for %s, %s' % (mp,p))
+                        self.errlog('error for %s, %s' % (self.FG.G2U(mp),self.FG.G2U(p)))
                         self.errlog(err)
                     if output:
-                        self.log('log for %s, %s' % (mp,p))
+                        self.log('log for %s, %s' % (self.FG.G2U(mp),self.FG.G2U(p)))
                         self.log(output)
                 except KeyboardInterrupt as kie:
                     print str(kie)
@@ -128,9 +131,23 @@ class dispatcher(PPIReader.PPIReader):
         #restore the context
         chdir(self.context)
         print 'done!'
+    def cmdstring(self, a='FGFR1', b='PIK3R1'):
+        self.setFastaGraber()
+        self.context=getcwd()
+        print ' '.join( self.arrangeCall( 
+            fas1 = self.FG.grabPathByGene(a),
+            fas2 = self.FG.grabPathByGene(b)
+        ))
         
 if __name__ == '__main__':
-    dp = dispatcher(open('./interactions.csv'))
-#    sklist=open('./done.csv').read().split('\n')
-#    sklist=map(lambda x: x.split(','), sklist)
-    dp.singletest('ERBB2','ABL1')
+    import sys
+    sklist=[]
+    sklist2=[]
+    dp = dispatcher(open(sys.argv[1]))
+    sklist=open('./done.csv').read().split('\n')
+    sklist=map(lambda x: x.split(','), sklist)
+#    sklist2=open('./skip.csv').read().split('\n')
+#    sklist2=map(lambda x: x.split(','), sklist2)
+#    dp.singletest('EGFR','ABL2')
+#    dp.cmdstring('ERBB2','ABL1')
+    dp.run(skipList=sklist + sklist2)
