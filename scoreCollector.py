@@ -9,11 +9,17 @@ class scoreCollector(FastaGraber.FastaGraber):
     def __init__(self, fromPath='./out'):
         self.fromPath=fromPath
         super(scoreCollector, self).__init__()
-    def makeTable(self, donefile='./done.csv'):
+    def makeTable(self, donefile='./done.csv', relative=False):
         def getTopScore(fn):
             a=open(fn).readline().split()
             assert(len(a) == 3)
             return a
+        def getModelFile(models,tempA,tempB):
+            fn = glob.glob('%s*%s*%s.pdb'%(
+                models,
+                tempA,tempB))
+            assert(len(fn) == 1)
+            return fn[0]
         if not donefile:
             raise Exception(
 'done file has not set, this module has not designed to support no done file retrieving.')
@@ -25,25 +31,32 @@ class scoreCollector(FastaGraber.FastaGraber):
             'filename',
             'protein_A',
             'protein_B',
+            'modelname',
             'template_A',
             'template_B',
             'topInterPredScore',
         ])
         for r in result:
-            fn = glob.glob('%s/%s*%s*predictions'%(self.fromPath, r[0], r[1]) )
+            if relative:
+                fn = glob.glob('%s/%s*%s*predictions'%(self.fromPath, r[0], r[1]) )
+            else:
+                fn =\
+                glob.glob('%s/%s*%s*predictions'%(os.path.abspath(self.fromPath), r[0], r[1]) )
             for f in fn:
                 try:
                     ts = getTopScore(f)
                     writer.writerow([
                         f,
                         r[0], r[1],
+                        getModelFile(re.sub('___predictions','',f),ts[0],ts[1]),
                         ts[0], ts[1],
                         ts[2]
                     ])
                 except AssertionError as e:
-                    sys.stderr.write(str(e))
+                    sys.stderr.write('assertion error occurs.\n')
                     sys.stderr.write('skip %s' % str(f))
                     sys.stderr.write('\n')
+                    raise
         return
     def makeDonefile(self, outfile=None):
         if not outfile:
@@ -87,9 +100,9 @@ if __name__ == '__main__':
         sc = scoreCollector(
             fromPath='/home/limin/limin/InterPred/interpred/output_files',
         )
-#    ff = open('./done.csv', 'w')
-#    sc.makeDonefile(outfile=ff)
-    sc.makeDonefile()
+#    sc.makeDonefile()
+#    sc.makeDonefile(open('tmp.1222','w'))
+    sc.makeTable(donefile='done.csv')
 #    ff.close()
 #    sc.makeInteraction(donefile='tmp.1126')
        
