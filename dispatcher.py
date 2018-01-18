@@ -26,16 +26,22 @@ class dispatcher(PPIReader.PPIReader):
             '-cpu',
             str(cpu)
         ]
-    def log(self,msg, filename='./log'):
+    def log(self,msg, filename='./log', stdout=False):
         f = open(self.context + '/' + filename, 'a')
         f.write('#'*10 + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         + '#'*10 + '\n')
         f.write(msg + '\n')
-    def errlog(self,msg ,filename='./errlog'):
+        f.close()
+        if stdout:
+           print msg 
+    def errlog(self,msg ,filename='./errlog', stdout=False):
         f = open(self.context + '/' + filename, 'a')
         f.write('#'*10 + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         + '#'*10 + '\n')
         f.write(msg + '\n')
+        f.close()
+        if stdout:
+           print msg 
     def run(self, skipList=[]):
         def done(p1,p2):
             p1 = p1.split('/')[2].split('.')[0]
@@ -53,10 +59,8 @@ class dispatcher(PPIReader.PPIReader):
             try:
                 fas1 = self.FG.grabPathByGene(mp)
             except Exception as e:
-                print str(e)
-                print 'skip modeling %s v.s. *' % mp
-                self.errlog(str(e))
-                self.errlog('skip modeling %s v.s. *' % mp)
+                self.errlog(str(e), stdout=True)
+                self.errlog('skip modeling %s v.s. *' % mp, stdout=True)
                 continue
                 
                 
@@ -85,15 +89,12 @@ class dispatcher(PPIReader.PPIReader):
                         self.log('log for %s, %s' % (self.FG.G2U(mp),self.FG.G2U(p)))
                         self.log(output)
                 except KeyboardInterrupt as kie:
-                    print str(kie)
-                    print 'user stop program when running %s, %s' %(mp, p)
-                    self.errlog('user stop program when running %s, %s' %(mp, p))
+                    self.errlog(str(kie), stdout=True)
+                    self.errlog('user stop program when running %s, %s' %(mp, p), stdout=True)
                     os.killpg(os.getpgid(proc.pid), signal.SIGTERM)
                 except Exception as e:
-                    print str(e)
-                    print 'skip modeling %s v.s. %s' % (mp, p)
-                    self.errlog(str(e))
-                    self.errlog('skip modeling %s v.s. %s' % (mp, p))
+                    self.errlog(str(e), stdout=True)
+                    self.errlog('skip modeling %s v.s. %s' % (mp, p), stdout=True)
                 chdir(self.context)
         print 'done!'
         
