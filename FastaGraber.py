@@ -4,7 +4,7 @@ import csv
 class FastaGraber(object):
     repo='./flattened'
     mapping='./uniprot_mapping.csv'
-    def __init__(self, repo='./flattened', mapping='./uniprot_mapping.csv'):
+    def __init__(self, repo='../misc/flattened', mapping='../misc/uniprot_mapping.csv'):
         self.repo=repo
         self.mapping=mapping
         if not self.check_repo():
@@ -49,7 +49,15 @@ class FastaGraber(object):
         Uid)
 if __name__ == '__main__':
     fg = FastaGraber()
-    print fg.G2U('KDR')
-    print fg.U2G('VGFR3_HUMAN')
-    print fg.grabPathByGene('VEGFC')
-    print fg.grabPathByGene('fail')
+    print '%s,%s' %(
+        fg.G2U('ERBB2'),
+        fg.G2U('FGR')
+    )
+#    print fg.G2U('KDR')
+#    print fg.U2G('VGFR3_HUMAN')
+#    print fg.grabPathByGene('VEGFC')
+#    f = open(sys.argv[1])
+#    for line in f:
+#        print ','.join(map(
+#            fg.G2U,
+#            line.strip().split(',')))
