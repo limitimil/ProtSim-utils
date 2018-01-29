@@ -1,6 +1,6 @@
 from StringIO import StringIO
 import csv
-class PPIReader:
+class PPIReader(object):
     def __init__(self, csvStream):
         s = csvStream.read()
         s = s.split('\n')
@@ -21,7 +21,23 @@ class PPIReader:
             for p in proteins:
                 ret.append([k, p])
         return ret
+    def participant(self):
+        major = self.ppi.keys()
+        partner = []
+        for v in self.ppi.values():
+            partner += v
+            
+        return list(set(major + partner))
+    def uniq(self):
+        for k in self.ppi.keys():
+            self.ppi[k] = list(set(self.ppi[k]))
+    def write(self, outfile):
+        with open(outfile,'w') as f:
+            for k,v in self.ppi.items():
+                f.write(','.join([k]+v))
+                f.write('\n')
+        return 
 if __name__ == '__main__':
-    pr = PPIReader(open('./interactions.csv'))
-    print pr.ppi
-    print '\n'.join(map(str, pr.flattened()))
+    pr = PPIReader(open('./interactions5.csv'))
+    print '\n'.join(map(lambda x: ','.join(x), pr.flattened()))
+
