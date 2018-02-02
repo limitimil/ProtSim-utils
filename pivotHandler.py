@@ -39,13 +39,16 @@ class pivot(object):
                 f.write(','.join([k]+v))
                 f.write('\n')
         return 
-    #overriding
     def update(self, dictlike):
         assert(pivotlike(dictlike))
         self.piv.update(dictlike)
     def __str__(self):
         pp = pprint.PrettyPrinter(indent=4)
         return pp.pformat(self.piv) 
+    def sort(self):
+        for k in self.piv.keys():
+            self.piv[k] = sorted(self.piv[k])
+
 if __name__ == '__main__':
     p = pivot()
     p.read('interactions.csv')
