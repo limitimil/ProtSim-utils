@@ -67,19 +67,18 @@ class modeller(object):
         from modeller import log, environ
         from modeller.automodel import automodel
 
-        log.verbose()
+        #log.verbose()
+        #log.none()
+        log.level(output=0, errors=0, notes=0, warnings=0, memory=0)
         env = environ()
         env.io.atom_files_directory = [self.template[0]]
 
-        print 'hi'
         a = automodel(env,
             alnfile = self.pir,
             knowns = self.template[1],
             sequence = seqId
         )
-        print 'hi'
         a.auto_align()
-        print 'hi'
         a.make()
         fn = '{}.B99990001.pdb'.format(seqId)
         assert(os.path.isfile(fn))
@@ -88,7 +87,8 @@ class modeller(object):
         assert(os.path.isfile(fn))
         self.pir = fn
     def pushTemplateFile(self, fn):
-        assert(os.path.isfile(fn))
+        if not os.path.isfile(fn):
+            raise Exception('file {} not found'.format(fn))
         self.template = (os.path.dirname(fn),
         os.path.splitext(os.path.basename(fn))[0])
     def validate(self):
@@ -99,14 +99,12 @@ class modeller(object):
         structure_templates = filter(
             lambda x: x.description.startswith('structureX'),
             pir)
-        print pir
         if not len(pir) >= 2:
             return False
-        print structure_templates
         if not structure_templates:
             return False
         #the strucure based sequence in pirfile should be retreivable in pir file
-        pdbnames = map( lambda x: x.description.split(':')[1].strip() + '.pdb',
+        pdbnames = map( lambda x: x.description.split(':')[1].strip(),
             structure_templates)
         if self.template[1] not in pdbnames:
             return False
@@ -160,4 +158,5 @@ def demo0201(target, template, chain):
     so.pushTemplateFile(template)
     print so.validate()
     print so.run(prepare['target'])
+    print so.validate()
     print 'done'
